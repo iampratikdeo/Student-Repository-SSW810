@@ -1,0 +1,6 @@
+98765\tEinstein, A\tSFEN
+98764\tFeynman, R\tSFEN
+98763\tNewton, I\tSFEN
+98762\tHawking, S\tSYEN
+98761\tEdison, A\tSYEN
+98760\tDarwin, C\tSYEN
