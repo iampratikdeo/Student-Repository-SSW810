@@ -1,6 +1,7 @@
-98765\tEinstein, A\tSFEN
-98764\tFeynman, R\tSFEN
-98763\tNewton, I\tSFEN
-98762\tHawking, S\tSYEN
-98761\tEdison, A\tSYEN
-98760\tDarwin, C\tSYEN
+CWID|Instructor|Dept
+98765|Einstein, A|SFEN
+98764|Feynman, R|SFEN
+98763|Newton, I|SFEN
+98762|Hawking, S|SYEN
+98761|Edison, A|SYEN
+98760|Darwin, C|SYEN

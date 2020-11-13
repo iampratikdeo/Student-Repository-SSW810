@@ -22,6 +22,13 @@ class Student:
                 f"Student with id {self.s_cwid} has no grade in {course}")
 
 
+class Major:
+    def __init__(self, dept, R_E, course):
+        self.m_dept = dept
+        self.required_courses = set()
+        self.elective_courses = set()
+
+
 class Instructor:
     def __init__(self, cwid, name, dept):
         self.i_cwid = cwid
@@ -42,26 +49,34 @@ class Respository:
             self.get_the_students(os.path.join(path, "students.txt"))
             self.get_the_instructors(os.path.join(path, "instructors.txt"))
             self.get_the_grades(os.path.join(path, "grades.txt"))
-
+            self.ge_the_majors(os.path.join(path, "majors.txt"))
         except FileNotFoundError:
             print("pass the correct path")
 
         if ptable:
+            self.prettytable_major()
             self.prettytable_student()
             self.prettytable_instructor()
 
     def prettytable_student(self):
         pt = PrettyTable(
-            field_names=['CWID', 'Name', 'Major', 'Completed Courses'])
+            field_names=['CWID', 'Name', 'Major', 'Completed Courses', 'Required Courses'])
         for student in self.student.values():
             pt.add_row([student.s_cwid, student.s_name, student.s_major,
-                        sorted(student.s_courses.keys())])
-
+                        sorted(student.s_courses.keys()), self.majors[student.s_major].required_courses -
+                        student.s_courses.keys()])
         print(pt)
+
+    def prettytable_major(self):
+        pt_3 = PrettyTable(field_names=['Dept', 'Required', 'Electives'])
+        for maj in self.majors.values():
+            pt_3.add_row([maj.m_dept, sorted(maj.required_courses),
+                          sorted(maj.elective_courses)])
+        print(pt_3)
 
     def get_the_students(self, path):
         try:
-            for c, n, m in file_reader(path, 3, sep='\\t', header=False):
+            for c, n, m in file_reader(path, 3, sep=';', header=True):
                 self.student[c] = Student(c, n, m)
         except FileNotFoundError as e1:
             print(f"this is e1: {e1}")
@@ -70,7 +85,7 @@ class Respository:
 
     def get_the_grades(self, path):
         try:
-            for cwid, co, gr, Iid in file_reader(path, 4, sep='\\t', header=False):
+            for cwid, co, gr, Iid in file_reader(path, 4, sep='|', header=False):
                 if cwid in self.student.keys():
                     self.student[cwid].add_the_courses(co, gr)
                 else:
@@ -84,12 +99,26 @@ class Respository:
 
     def get_the_instructors(self, path):
         try:
-            for c, n, m in file_reader(path, 3, sep='\\t', header=False):
+            for c, n, m in file_reader(path, 3, sep='|', header=False):
                 self.instructors[c] = Instructor(c, n, m)
         except FileNotFoundError as e1:
             print(f"this is e1: {e1}")
         except ValueError as v:
             print(f"this is v: {v}")
+
+    def ge_the_majors(self, path):
+        try:
+            for d, r_e_c, c in file_reader(path, 3, sep="	", header=True):
+                if d not in self.majors.keys():
+                    self.majors[d] = Major(d, r_e_c, c)
+                if r_e_c.upper() == 'R':
+                    self.majors[d].required_courses.add(c)
+                elif r_e_c.upper() == "E":
+                    self.majors[d].elective_courses.add(c)
+        except FileNotFoundError as f:
+            print(f)
+        except ValueError as v:
+            print(v)
 
     def prettytable_instructor(self):
         pt_2 = PrettyTable(
@@ -102,4 +131,4 @@ class Respository:
         print(pt_2)
 
 
-stevens = Respository("/Users/pratikdeo/Documents/SSW810-HW9/HW9")
+stevens = Respository("/Users/pratikdeo/Documents/Student-Repository-SSW810")
