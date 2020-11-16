@@ -5,14 +5,16 @@ from collections import defaultdict
 
 
 class Student:
+
     def __init__(self, cwid, name, major):
         self.s_cwid = cwid
         self.s_name = name
         self.s_major = major
         self.s_courses = dict()
+        self.s_gpa = 0
 
     def add_the_courses(self, course, grade):
-        grades = ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C']
+        grades = ('A', 'A-', 'B+', 'B', 'B-', 'C+', 'C')
         if grade in grades:
             self.s_courses[course] = grade
         elif grade == 'F':
@@ -20,6 +22,10 @@ class Student:
         else:
             print(
                 f"Student with id {self.s_cwid} has no grade in {course}")
+
+    def calculate_gpa(self):
+        points: [self.grades_map[grade] for grade in self.s_courses.values()]
+        return (points)
 
 
 class Major:
@@ -60,11 +66,26 @@ class Respository:
 
     def prettytable_student(self):
         pt = PrettyTable(
-            field_names=['CWID', 'Name', 'Major', 'Completed Courses', 'Required Courses'])
+            field_names=['CWID', 'Name', 'Major', 'Completed Courses', 'Required Courses', 'Elective Courses', 'GPA'])
+        grades_map = {'A': 4.0, 'A-': 3.75, 'B+': 3.25, 'B': 3.0,
+                      'B-': 2.75, 'C+': 2.25, 'C': 2.0, 'C-': 0, 'D+': 0, 'D-': 0, 'F': 0}
         for student in self.student.values():
+            l: list = [grades_map[grade]
+                       for grade in student.s_courses.values()]
+            if len(l) > 0:
+                gpa: float = sum(l)/len(l)
+            else:
+                gpa = 0.0
+            elective_c = list(self.majors[student.s_major].elective_courses)
+            student_courses = student.s_courses.keys()
+            if(len(elective_c - student_courses) == 3):
+                ec = elective_c
+            else:
+                ec = []
             pt.add_row([student.s_cwid, student.s_name, student.s_major,
-                        sorted(student.s_courses.keys()), self.majors[student.s_major].required_courses -
-                        student.s_courses.keys()])
+                        sorted(student.s_courses.keys()), list(self.majors[student.s_major].required_courses -
+                                                               student_courses), ec, round(gpa, 2)])
+
         print(pt)
 
     def prettytable_major(self):
@@ -131,4 +152,4 @@ class Respository:
         print(pt_2)
 
 
-stevens = Respository("/Users/pratikdeo/Documents/Student-Repository-SSW810")
+Respository("/Users/pratikdeo/Documents/Student-Repository-SSW810")
