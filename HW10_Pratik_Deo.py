@@ -2,6 +2,9 @@ from HW08_Pratik_Deo import file_reader
 from prettytable import PrettyTable
 import os
 from collections import defaultdict
+import sqlite3
+db_file: str = "/Users/pratikdeo/Documents/Student-Repository-SSW810/hw11/hw11.db"
+db: sqlite3.Connection = sqlite3.connect(db_file)
 
 
 class Student:
@@ -56,6 +59,7 @@ class Respository:
             self.get_the_instructors(os.path.join(path, "instructors.txt"))
             self.get_the_grades(os.path.join(path, "grades.txt"))
             self.ge_the_majors(os.path.join(path, "majors.txt"))
+
         except FileNotFoundError:
             print("pass the correct path")
 
@@ -63,6 +67,7 @@ class Respository:
             self.prettytable_major()
             self.prettytable_student()
             self.prettytable_instructor()
+            self.student_grades_table_db(db_file)
 
     def prettytable_student(self):
         pt = PrettyTable(
@@ -97,7 +102,7 @@ class Respository:
 
     def get_the_students(self, path):
         try:
-            for c, n, m in file_reader(path, 3, sep=';', header=True):
+            for c, n, m in file_reader(path, 3, sep='	', header=True):
                 self.student[c] = Student(c, n, m)
         except FileNotFoundError as e1:
             print(f"this is e1: {e1}")
@@ -106,7 +111,7 @@ class Respository:
 
     def get_the_grades(self, path):
         try:
-            for cwid, co, gr, Iid in file_reader(path, 4, sep='|', header=False):
+            for cwid, co, gr, Iid in file_reader(path, 4, sep='	', header=True):
                 if cwid in self.student.keys():
                     self.student[cwid].add_the_courses(co, gr)
                 else:
@@ -120,7 +125,7 @@ class Respository:
 
     def get_the_instructors(self, path):
         try:
-            for c, n, m in file_reader(path, 3, sep='|', header=False):
+            for c, n, m in file_reader(path, 3, sep='	', header=True):
                 self.instructors[c] = Instructor(c, n, m)
         except FileNotFoundError as e1:
             print(f"this is e1: {e1}")
@@ -151,5 +156,15 @@ class Respository:
 
         print(pt_2)
 
+    def student_grades_table_db(self, path):
+        db: sqlite3.Connection = sqlite3.connect(db_file)
+        pt5 = PrettyTable(
+            field_names=['Name', 'CWID', 'Course', 'Grade', 'Instructor_Name'])
+        query: str = "select students.Name as Name, students.CWID as CWID, grades.Course, grades.Grade, instructors.Name as Instructor_Name from students, grades, instructors where students.CWID = grades.StudentCWID  and  grades.InstructorCWID = instructors.CWID order by students.Name;"
+        for row in db.execute(query):
+            pt5.add_row([row[0], row[1], row[2],
+                         row[3], row[4]])
+        print(pt5)
 
-Respository("/Users/pratikdeo/Documents/Student-Repository-SSW810")
+
+Respository("/Users/pratikdeo/Documents/Student-Repository-SSW810/hw11")
